@@ -56,10 +56,8 @@ class HashTable:
         Fill this in.
         '''
         if self.load_factor > .7:
-            print(self.load_factor)
             self.resize(True)
         elif self.load_factor < .2:
-            print(self.load_factor)
             self.resize(False)
 
         new_node = LinkedPair(key, value)
@@ -141,8 +139,7 @@ class HashTable:
         load = 0
         for row in self.storage:
             if row is not None:
-                count = self.count_row(
-                    row, True) if print_on else self.count_row(row)
+                count = self.count_row(row, print_on)
                 load += count
         return load
 
