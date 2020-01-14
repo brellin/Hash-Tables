@@ -98,12 +98,7 @@ class HashTable:
         Fill this in.
         '''
         index = self._hash_mod(key)
-        if self.storage[index] == None:
-            return self.storage[index]
-        elif self.storage[index].key == key:
-            return self.storage[index].value
-        else:
-            return self.find_match(self.storage[index].next, key)
+        return self.find_match(self.storage[index], key)
 
     def find_match(self, node, key):
         if node == None or node.key == key:
@@ -123,11 +118,12 @@ class HashTable:
         old = [node for node in self.storage if node != None]
         self.storage = [None] * self.capacity
         for node in old:
-            def insert_next(node):
-                self.insert(node.key, node.value)
-                if node.next:
-                    insert_next(node.next)
-            insert_next(node)
+            self.insert_next(node)
+
+    def insert_next(self, node):
+        self.insert(node.key, node.value)
+        if node.next:
+            self.insert_next(node.next)
 
 
 if __name__ == "__main__":
@@ -157,6 +153,3 @@ if __name__ == "__main__":
     print(ht.retrieve("line_3"))
 
     print("")
-
-    for node in ht.storage:
-        print(node.value if node != None else node)
