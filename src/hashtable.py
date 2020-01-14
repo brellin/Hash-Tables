@@ -58,13 +58,13 @@ class HashTable:
         elif self.storage[index].key == key:
             self.storage[index].value = value
         else:
-            self.insert_next_node(self.storage[index].next, new_node)
+            self.insert_next_node(self.storage[index], new_node)
 
     def insert_next_node(self, node, value):
-        if node == None:
-            node = value
-        elif node.key == value.key:
-            node.value = value.value
+        if node.next == None:
+            node.next = value
+        elif node.next.key == value.key:
+            node.next.value = value.value
         else:
             return self.insert_next_node(node.next, value)
 
