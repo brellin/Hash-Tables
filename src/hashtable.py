@@ -19,6 +19,7 @@ class HashTable:
     def __init__(self, capacity):
         self.capacity = capacity  # Number of buckets in the hash table
         self.storage = [None] * capacity
+        self.load_factor = 0
 
     def _hash(self, key):
         '''
@@ -34,14 +35,17 @@ class HashTable:
 
         OPTIONAL STRETCH: Research and implement DJB2
         '''
-        pass
+        hash = 5381
+        for n in key:
+            hash = ((hash << 5) + hash) + ord(n)  # "<<" == x(2^y)
+        return hash
 
     def _hash_mod(self, key):
         '''
         Take an arbitrary key and return a valid integer index
         within the storage capacity of the hash table.
         '''
-        return self._hash(key) % self.capacity
+        return self._hash_djb2(key) % self.capacity
 
     def insert(self, key, value):
         '''
@@ -51,6 +55,11 @@ class HashTable:
 
         Fill this in.
         '''
+        if self.load_factor > .7:
+            self.resize(True)
+        elif self.load_factor < .2:
+            self.resize(False)
+
         new_node = LinkedPair(key, value)
         index = self._hash_mod(key)
         if self.storage[index] == None:
@@ -58,15 +67,17 @@ class HashTable:
         elif self.storage[index].key == key:
             self.storage[index].value = value
         else:
-            self.insert_next_node(self.storage[index], new_node)
+            self.insert_next(self.storage[index], new_node)
 
-    def insert_next_node(self, node, value):
+        self.load_factor = self.count_each_row() / self.capacity
+
+    def insert_next(self, node, value):
         if node.next == None:
             node.next = value
         elif node.next.key == value.key:
             node.next.value = value.value
         else:
-            return self.insert_next_node(node.next, value)
+            return self.insert_next(node.next, value)
 
     def remove(self, key):
         '''
@@ -98,12 +109,7 @@ class HashTable:
         Fill this in.
         '''
         index = self._hash_mod(key)
-        if self.storage[index] == None:
-            return self.storage[index]
-        elif self.storage[index].key == key:
-            return self.storage[index].value
-        else:
-            return self.find_match(self.storage[index].next, key)
+        return self.find_match(self.storage[index], key)
 
     def find_match(self, node, key):
         if node == None or node.key == key:
@@ -111,23 +117,39 @@ class HashTable:
         else:
             return self.find_match(node.next, key)
 
-    def resize(self):
+    def resize(self, big=True):
         '''
         Doubles the capacity of the hash table and
         rehash all key/value pairs.
 
         Fill this in.
         '''
-
-        self.capacity *= 2
+        self.capacity = self.capacity * 2 if big else self.capacity // 2
         old = [node for node in self.storage if node != None]
         self.storage = [None] * self.capacity
         for node in old:
-            def insert_next(node):
-                self.insert(node.key, node.value)
-                if node.next:
-                    insert_next(node.next)
-            insert_next(node)
+            self.re_insert(node)
+
+    def re_insert(self, node):
+        self.insert(node.key, node.value)
+        if node.next:
+            self.re_insert(node.next)
+
+    def count_each_row(self, print_on=False):
+        load = 0
+        for row in self.storage:
+            if row is not None:
+                count = self.count_row(row, print_on)
+                load += count
+        return load
+
+    def count_row(self, node, print_on=False, count=0):
+        if print_on:
+            print(node.value)
+        count += 1
+        if node.next is not None:
+            return self.count_row(node.next, print_on, count)
+        return count
 
 
 if __name__ == "__main__":
@@ -136,27 +158,30 @@ if __name__ == "__main__":
     ht.insert("line_1", "Tiny hash table")
     ht.insert("line_2", "Filled beyond capacity")
     ht.insert("line_3", "Linked list saves the day!")
+    ht.insert("line_4", "4")
+    ht.insert("line_5", "5")
+    ht.insert("line_6", "6")
+    ht.insert("line_7", "7")
+    ht.insert("line_8", "8")
+    ht.insert("line_9", "9")
 
-    print("")
+    # print("")
 
-    # Test storing beyond capacity
-    print(ht.retrieve("line_1"))
-    print(ht.retrieve("line_2"))
-    print(ht.retrieve("line_3"))
+    # # Test storing beyond capacity
+    # print(ht.retrieve("line_1"))
+    # print(ht.retrieve("line_2"))
+    # print(ht.retrieve("line_3"))
 
-    # Test resizing
-    old_capacity = len(ht.storage)
-    ht.resize()
-    new_capacity = len(ht.storage)
+    # # Test resizing
+    # old_capacity = len(ht.storage)
+    # ht.resize()
+    # new_capacity = len(ht.storage)
 
-    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
-    # Test if data intact after resizing
-    print(ht.retrieve("line_1"))
-    print(ht.retrieve("line_2"))
-    print(ht.retrieve("line_3"))
+    # # Test if data intact after resizing
+    # print(ht.retrieve("line_1"))
+    # print(ht.retrieve("line_2"))
+    # print(ht.retrieve("line_3"))
 
-    print("")
-
-    for node in ht.storage:
-        print(node.value if node != None else node)
+    # print("")
