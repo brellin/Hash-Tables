@@ -58,13 +58,13 @@ class HashTable:
         elif self.storage[index].key == key:
             self.storage[index].value = value
         else:
-            self.insert_next_node(self.storage[index], new_node)
+            self.insert_next_node(self.storage[index].next, new_node)
 
     def insert_next_node(self, node, value):
-        if node.next == None:
-            node.next = value
-        elif node.next.key == value.key:
-            node.next.value = value.value
+        if node == None:
+            node = value
+        elif node.key == value.key:
+            node.value = value.value
         else:
             return self.insert_next_node(node.next, value)
 
@@ -113,17 +113,16 @@ class HashTable:
 
         Fill this in.
         '''
-
         self.capacity *= 2
         old = [node for node in self.storage if node != None]
         self.storage = [None] * self.capacity
         for node in old:
-            self.insert_next(node)
+            self.re_insert(node)
 
-    def insert_next(self, node):
+    def re_insert(self, node):
         self.insert(node.key, node.value)
         if node.next:
-            self.insert_next(node.next)
+            self.re_insert(node.next)
 
 
 if __name__ == "__main__":
