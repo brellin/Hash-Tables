@@ -36,9 +36,9 @@ class HashTable:
         OPTIONAL STRETCH: Research and implement DJB2
         '''
         hash = 5381
-        for n in key:
-            hash = ((hash << 5) + hash) + ord(n)  # "<<" == x(2^y)
-        return hash
+        for char in key:
+            hash = ((hash << 5) + hash) + ord(char)
+        return hash & 0xFFFFFFFF
 
     def _hash_mod(self, key):
         '''
@@ -165,23 +165,7 @@ if __name__ == "__main__":
     ht.insert("line_8", "8")
     ht.insert("line_9", "9")
 
-    # print("")
-
-    # # Test storing beyond capacity
-    # print(ht.retrieve("line_1"))
-    # print(ht.retrieve("line_2"))
-    # print(ht.retrieve("line_3"))
-
-    # # Test resizing
-    # old_capacity = len(ht.storage)
-    # ht.resize()
-    # new_capacity = len(ht.storage)
-
-    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
-
-    # # Test if data intact after resizing
-    # print(ht.retrieve("line_1"))
-    # print(ht.retrieve("line_2"))
-    # print(ht.retrieve("line_3"))
-
-    # print("")
+    # Test storing beyond capacity
+    print(ht.retrieve("line_1"))
+    print(ht.retrieve("line_2"))
+    print(ht.retrieve("line_3"))
